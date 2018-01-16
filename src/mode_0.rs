@@ -1,12 +1,10 @@
-use std::io::stdin;
-use std::io::Read;
 
-pub fn execute(s: &[u8], n: usize) -> String {
+pub fn execute<F>(s: &[u8], n: usize, mut get_input: F) -> String
+        where F: FnMut() -> u8 {
     let mut cells = Vec::<usize>::with_capacity(n);
     for _ in 0..n { cells.push(0) };
     let mut ptr: usize = 0;
     let mut ip: usize = 0;
-    let mut input: [u8; 1] = [0];
     let mut output = String::new();
 
     while ip < s.len() {
@@ -16,7 +14,7 @@ pub fn execute(s: &[u8], n: usize) -> String {
             '+' => cells[ptr] = cells[ptr].wrapping_add(1),
             '-' => cells[ptr] = cells[ptr].wrapping_sub(1),
             '.' => output.push((cells[ptr] as u8) as char),
-            ',' => { stdin().read_exact(&mut input).unwrap(); cells[ptr] = input[0] as usize },
+            ',' => cells[ptr] = get_input() as usize,
             '[' => if cells[ptr] == 0 {
                 let mut nesting = 0;
                 for i in ip..s.len() {
