@@ -1,3 +1,26 @@
+use std::collections::HashMap;
+
+fn build_matching_brackets_map(s: &[u8]) -> HashMap<usize, usize> {
+    let mut ip: usize = 0;
+    let mut open_brackets = Vec::new();
+    let mut idx_to_matching = HashMap::new();
+
+    while ip < s.len() {
+        match s[ip] as char {
+            '[' => open_brackets.push(ip),
+            ']' => {
+                if open_brackets.is_empty() {  };
+                let idx = open_brackets.pop().unwrap_or_else(|| panic!("Unmatched ] at {}", ip));
+                idx_to_matching.insert(ip, idx);
+                idx_to_matching.insert(idx, ip);
+            },
+            _ => {}
+        };
+        ip += 1
+    }
+
+    idx_to_matching
+}
 
 pub fn execute<F>(s: &[u8], n: usize, mut get_input: F) -> String
         where F: FnMut() -> u8 {
@@ -6,40 +29,18 @@ pub fn execute<F>(s: &[u8], n: usize, mut get_input: F) -> String
     let mut ptr: usize = 0;
     let mut ip: usize = 0;
     let mut output = String::new();
+    let idx_to_matching = build_matching_brackets_map(s);
 
     while ip < s.len() {
         match s[ip] as char {
-            '>' => ptr = (ptr + 1)%n,
-            '<' => if ptr > 0 { ptr -= 1 } else { ptr = n-1 }
+            '>' => ptr += 1,
+            '<' => ptr -= 1,
             '+' => cells[ptr] = cells[ptr].wrapping_add(1),
             '-' => cells[ptr] = cells[ptr].wrapping_sub(1),
             '.' => output.push((cells[ptr] as u8) as char),
             ',' => cells[ptr] = get_input() as usize,
-            '[' => if cells[ptr] == 0 {
-                let mut nesting = 0;
-                for i in ip..s.len() {
-                    if s[i] == ']' as u8 { nesting -= 1 }
-                    else if s[i] == '[' as u8 { nesting += 1 };
-
-                    if nesting == 0 { ip = i; break }
-                }
-
-                if nesting != 0 { panic!("Unmatched [ at {}, nesting: {}", ip, nesting) };
-            },
-            ']' => if cells[ptr] != 0 {
-                let mut nesting = 0;
-                for i in (0..ip+1).rev() {
-                    if s[i] == '[' as u8 {
-                        nesting -= 1
-                    } else if s[i] == ']' as u8 {
-                        nesting += 1
-                    };
-
-                    if nesting == 0 { ip = i; break }
-                }
-
-                if nesting != 0 { panic!("Unmatched ] at {}, nesting: {}", ip, nesting) };
-            },
+            '[' => if cells[ptr] == 0 { ip = idx_to_matching[&ip] },
+            ']' => if cells[ptr] != 0 { ip = idx_to_matching[&ip] },
             _ => {}
         };
         ip += 1
