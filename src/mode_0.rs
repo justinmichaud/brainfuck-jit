@@ -24,7 +24,7 @@ fn build_matching_brackets_map(s: &[u8]) -> HashMap<usize, usize> {
 
 pub fn execute<F>(s: &[u8], n: usize, mut get_input: F) -> String
         where F: FnMut() -> u8 {
-    let mut cells = Vec::<usize>::with_capacity(n);
+    let mut cells = Vec::<u8>::with_capacity(n);
     for _ in 0..n { cells.push(0) };
     let mut ptr: usize = 0;
     let mut ip: usize = 0;
@@ -38,7 +38,7 @@ pub fn execute<F>(s: &[u8], n: usize, mut get_input: F) -> String
             '+' => cells[ptr] = cells[ptr].wrapping_add(1),
             '-' => cells[ptr] = cells[ptr].wrapping_sub(1),
             '.' => output.push((cells[ptr] as u8) as char),
-            ',' => cells[ptr] = get_input() as usize,
+            ',' => cells[ptr] = get_input(),
             '[' => if cells[ptr] == 0 { ip = idx_to_matching[&ip] },
             ']' => if cells[ptr] != 0 { ip = idx_to_matching[&ip] },
             _ => {}
