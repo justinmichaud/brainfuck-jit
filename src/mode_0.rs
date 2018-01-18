@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-fn build_matching_brackets_map(s: &[u8]) -> HashMap<usize, usize> {
+pub fn build_matching_brackets_map(s: &[u8]) -> HashMap<usize, usize> {
     let mut ip: usize = 0;
     let mut open_brackets = Vec::new();
     let mut idx_to_matching = HashMap::new();

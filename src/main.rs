@@ -1,6 +1,7 @@
 extern crate clap;
 
 mod mode_0;
+mod mode_1;
 
 use clap::{Arg, App};
 use std::fs::File;
@@ -19,7 +20,7 @@ fn main() {
         .arg(Arg::with_name("mode")
             .long("mode")
             .value_name("MODE")
-            .help("Sets mode: 0 = Interpreter")
+            .help("Sets mode: 0 = Interpreter; 1 = Simple JIT")
             .takes_value(true))
         .arg(Arg::with_name("file")
             .long("file")
@@ -49,6 +50,7 @@ fn execute<F>(mode: usize, contents: &[u8], cells: usize, get_input: F) -> Strin
         where F: FnMut() -> u8 {
     match mode {
         0 => mode_0::execute(contents, cells, get_input),
+        1 => mode_1::execute(contents, cells, get_input),
         _ => panic!("Invalid mode: {}", mode)
     }
 }
@@ -58,7 +60,7 @@ mod tests {
     use execute;
 
     fn progtest(prog: &str, expected: &str, cells: usize, input: &str) {
-        for i in 0..1 {
+        for i in 1..2 {
             let mut input_index = 0;
             assert_eq!(execute(i, prog.as_bytes(), cells,
                                || {
