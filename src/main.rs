@@ -2,6 +2,7 @@ extern crate clap;
 
 mod mode_0;
 mod mode_1;
+mod mode_2;
 
 use clap::{Arg, App};
 use std::fs::File;
@@ -20,7 +21,7 @@ fn main() {
         .arg(Arg::with_name("mode")
             .long("mode")
             .value_name("MODE")
-            .help("Sets mode: 0 = Interpreter; 1 = Optimizing Interpreter")
+            .help("Sets mode: 0 = Interpreter; 1 = Optimizing Interpreter; 2 = OI 2")
             .takes_value(true))
         .arg(Arg::with_name("file")
             .long("file")
@@ -51,6 +52,7 @@ fn execute<F>(mode: usize, contents: &[u8], cells: usize, get_input: F) -> Strin
     match mode {
         0 => mode_0::execute(contents, cells, get_input),
         1 => mode_1::execute(contents, cells, get_input),
+        2 => mode_2::execute(contents, cells, get_input),
         _ => panic!("Invalid mode: {}", mode)
     }
 }
@@ -63,7 +65,7 @@ mod tests {
     use self::time::PreciseTime;
 
     fn progtest(prog: &str, expected: &str, cells: usize, input: &str) {
-        for i in 0..2 {
+        for i in 2..3 {
             let start = PreciseTime::now();
 
             let mut input_index = 0;
