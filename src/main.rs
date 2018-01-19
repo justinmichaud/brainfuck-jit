@@ -20,7 +20,7 @@ fn main() {
         .arg(Arg::with_name("mode")
             .long("mode")
             .value_name("MODE")
-            .help("Sets mode: 0 = Interpreter; 1 = Simple JIT")
+            .help("Sets mode: 0 = Interpreter; 1 = Optimizing Interpreter")
             .takes_value(true))
         .arg(Arg::with_name("file")
             .long("file")
@@ -57,16 +57,24 @@ fn execute<F>(mode: usize, contents: &[u8], cells: usize, get_input: F) -> Strin
 
 #[cfg(test)]
 mod tests {
+    extern crate time;
+
     use execute;
+    use self::time::PreciseTime;
 
     fn progtest(prog: &str, expected: &str, cells: usize, input: &str) {
-        for i in 1..2 {
+        for i in 0..2 {
+            let start = PreciseTime::now();
+
             let mut input_index = 0;
             assert_eq!(execute(i, prog.as_bytes(), cells,
                                || {
                                    input_index += 1;
                                    input.as_bytes()[input_index-1]
-                               }), expected)
+                               }), expected);
+
+            let end = PreciseTime::now();
+            println!("Mode {} completed in {} ms.", i, start.to(end).num_milliseconds());
         }
     }
 

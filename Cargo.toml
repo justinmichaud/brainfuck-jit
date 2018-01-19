@@ -5,3 +5,6 @@ authors = ["jmichaud"]
 
 [dependencies]
 clap="*"
+
+[dev-dependencies]
+time="*"

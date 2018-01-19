@@ -9,7 +9,6 @@ pub fn build_matching_brackets_map(s: &[u8]) -> HashMap<usize, usize> {
         match s[ip] as char {
             '[' => open_brackets.push(ip),
             ']' => {
-                if open_brackets.is_empty() {  };
                 let idx = open_brackets.pop().unwrap_or_else(|| panic!("Unmatched ] at {}", ip));
                 idx_to_matching.insert(ip, idx);
                 idx_to_matching.insert(idx, ip);
