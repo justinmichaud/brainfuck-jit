@@ -13,6 +13,16 @@ pub enum BFInstr {
 }
 use mode_1::BFInstr::*;
 
+#[inline(always)]
+fn mapper(i: BFInstr) -> Option<BFInstr> {
+    Some(i)
+}
+
+#[inline(always)]
+fn unmapper(i: BFInstr) -> BFInstr {
+    i
+}
+
 pub fn generate_ir(s: &[u8]) -> Vec<BFInstr> {
     let mut program = Vec::new();
 
@@ -42,15 +52,20 @@ pub fn generate_ir(s: &[u8]) -> Vec<BFInstr> {
         };
     }
 
+    fix_brackets(program, mapper, unmapper)
+}
+
+pub fn fix_brackets<T>(mut program: Vec<T>, program_mapper: fn(T)->Option<BFInstr>,
+                       program_unmapper: fn(BFInstr)->T) -> Vec<T> where T: Copy {
     let mut open_brackets = Vec::new();
 
     for idx in 0..program.len() {
-        match program[idx] {
-            BranchZero(_) => open_brackets.push(idx),
-            BranchNZero(_) => {
+        match program_mapper(program[idx]) {
+            Some(BranchZero(_)) => open_brackets.push(idx),
+            Some(BranchNZero(_)) => {
                 let matching = open_brackets.pop().unwrap_or_else(|| panic!("Unmatched ] at ir idx {}", idx));
-                program[idx] = BranchNZero(matching);
-                program[matching] = BranchZero(idx);
+                program[idx] = program_unmapper(BranchNZero(matching));
+                program[matching] = program_unmapper(BranchZero(idx));
             },
             _ => { }
         }
