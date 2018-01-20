@@ -59,11 +59,10 @@ pub fn generate_ir(s: &[u8]) -> Vec<BFInstr> {
     program
 }
 
-pub fn execute_with_callback<F,G,T>(program: Vec<T>, n: usize, mut get_input: F,
-                                    instr_callback: G) -> String
+pub fn execute_with_callback<F,T>(program: Vec<T>, n: usize, mut get_input: F,
+                                    instr_callback: fn(&mut usize, &mut usize, &mut Vec<u8>, T,
+                                                       &mut F, &mut String) -> ()) -> String
     where F: FnMut() -> u8,
-          G: Fn(&mut usize, &mut usize, &mut Vec<u8>, T,
-                &mut F, &mut String) -> (),
           T: Copy {
     let mut cells = Vec::<u8>::with_capacity(n);
     for _ in 0..n { cells.push(0) };
@@ -81,8 +80,9 @@ pub fn execute_with_callback<F,G,T>(program: Vec<T>, n: usize, mut get_input: F,
     output
 }
 
-pub fn base_execute_callback<F>(ptr: &mut usize, ip: &mut usize, cells: &mut Vec<u8>,
-                             instr: BFInstr, get_input: &mut F, output: &mut String)
+#[inline(always)]
+pub fn execute_callback<F>(ptr: &mut usize, ip: &mut usize, cells: &mut Vec<u8>,
+                           instr: BFInstr, get_input: &mut F, output: &mut String)
     where F: FnMut() -> u8 {
     match instr {
         PtrIncr(n) => *ptr += n,
@@ -99,5 +99,5 @@ pub fn base_execute_callback<F>(ptr: &mut usize, ip: &mut usize, cells: &mut Vec
 pub fn execute<F>(s: &[u8], n: usize, get_input: F) -> String
     where F: FnMut() -> u8 {
     execute_with_callback(generate_ir(s), n, get_input,
-                          base_execute_callback)
+                          execute_callback)
 }
